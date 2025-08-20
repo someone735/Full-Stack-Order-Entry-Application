@@ -23,13 +23,17 @@
                 <button type="button" id = "addLineItemAction">Add Line Item</button>
                 <button type="submit">Submit sales order</button>
         </form>
+
+        <div id = "ConfirmationBoard"></div>
+
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {{
             const SalesOrderForm = document.getElementById("SalesOrderForm");
             const LineItemsList = document.getElementById("LineItemsList");
             const addLineItemAction = document.getElementById("addLineItemAction");
-            
+            const ConfirmationBoard = document.getElementById("ConfirmationBoard");
+
             let LineItemsCounter = 0;
 
             const addLineItem = () => {{
@@ -46,7 +50,28 @@
             }};
             addLineItemAction.addEventListener('click', addLineItem);
 
-            
+            SalesOrderForm.addEventListener('submit', async(event) => {{
+                
+                event.preventDefault(); 
+
+                const formData = new FormData(SalesOrderForm)
+                const dataObject = {};
+                formData.forEach((value, key) => {
+                    dataObject[key] = value;
+                });
+                const jsonString = JSON.stringify(dataObject);
+
+                console.log(jsonString);
+                try {{
+                    const response = await fetch("/order", {
+                        method: 'POST',
+                        body: jsonString
+                    });
+                }} catch (error) {{
+                    console.error('Error in submitting sales order: ', error);
+                }}
+
+            }});
         }});
     </script>
 </body>
