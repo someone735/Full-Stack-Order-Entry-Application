@@ -7,7 +7,7 @@
     <div>
         <h1>Create Sales Order</h1>
         <!-- <form action="/order"> -->
-        <form id = "SalesOrderForm">
+        <form id = "SalesOrderForm" method="POST">
             <div>
                 <label for = "CustomerName">Customer Name</label>
                 <input type="text" id = "CustomerName" name = "CustomerName" required><br>
@@ -55,17 +55,11 @@
                 event.preventDefault(); 
 
                 const formData = new FormData(SalesOrderForm)
-                const dataObject = {};
-                formData.forEach((value, key) => {
-                    dataObject[key] = value;
-                });
-                const jsonString = JSON.stringify(dataObject);
 
-                console.log(jsonString);
                 try {{
                     const response = await fetch("/order", {
                         method: 'POST',
-                        body: jsonString
+                        body: formData
                     });
                 }} catch (error) {{
                     console.error('Error in submitting sales order: ', error);
