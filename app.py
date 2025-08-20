@@ -1,7 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
+
+app.mount("/", StaticFiles(directory="Template_Folder", html = True), name = "static")
 
 OrdersDB = {}
 order_ID_counter = 0
@@ -31,9 +34,9 @@ def line_item_verification(line_item_names, line_items_quantity):
     return True    
 
 
-@app.get("/")
-def root():
-    return {"message": "Hello World"}
+# @app.get("/")
+# def root():
+#     return {"message": "Hello World"}
 
 
 # This /order endpoint should process the form data, 
