@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Full-Stack Order Entry Application</title>
+</head>
+<body>
+    <div>
+        <h1>Create Sales Order</h1>
+        <!-- <form action="/order"> -->
+        <form id = "SalesOrderForm">
+            <div>
+                <label for = "CustomerName">Customer Name</label>
+                <input type="text" id = "CustomerName" name = "CustomerName" required><br>
+            </div>
+            <div id = "LineItemsList">
+                <label for ="LineItemsOrder">Line Items</label><br>
+                <!-- <h2>[Product name, Quantity of product]</h2> -->
+                <div>
+                    <input type = "text" id = "LineItemName_0" name = "LineItemName" required placeholder = "Product Name">
+                    <input type = "number" id = "LineItemQuantity_0" name = "LineItemQuantity" required placeholder = "Quantity">
+                </div>
+            </div>
+            <div>
+                <button type="button" id = "addLineItemAction">Add Line Item</button>
+                <button type="submit">Submit sales order</button>
+        </form>
+    </div>
+    <script>
+        document.addEventListener('DOMConentLoad', () => {{
+            const SalesOrderForm = document.getElementById("SalesOrderForm");
+            const LineItemsList = document.getElementById("LineItemsList");
+            const addLineItemAction = document.getElementById("addLineItemAction");
+            
+            let LineItemsCounter = 0;
+
+            const addLineItem = () => {{
+                LineItemsCounter++
+                const newLineItem = document.createElement('div');
+                newLineItem.innerHTML = `
+                    <div>
+                    <input type = "text" id = "LineItemName_${{LineItemsCounter}}" name = "LineItemName" required placeholder = "Product Name">
+                    <input type = "number" id = "LineItemQuantity_${{LineItemsCounter}}" name = "LineItemQuantity" required placeholder = "Quantity">
+                    </div>
+                `;
+                LineItemsList.append(newLineItem);
+            }};
+
+            addLineItemAction.addEventListener('click', addLineItem);
+
+            SalesOrderForm.addEventListener("submit", async (event) => {{
+                
+            }})
+        }})
+    </script>
+</body>
+</html>

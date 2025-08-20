@@ -17,7 +17,6 @@ class Line_Item:
             self.item_names.append(item)
             
 def line_item_verification(line_item_names, line_items_quantity):
-    
     if len(line_item_names) != len(line_items_quantity): #every item name must have a quantity
         return False
     
