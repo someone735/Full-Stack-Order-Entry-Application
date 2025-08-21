@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from typing import List
+from typing import List, Optional
 
 
 app = FastAPI()
@@ -27,12 +27,11 @@ async def serve_index():
 
 @app.post("/order", response_class = HTMLResponse)
 async def submit(
-    CustomerName: str = Form(...),
-    LineItemName: List[str] = Form(...),
-    LineItemQuantity: List[int] = Form(...)
+    CustomerName: str = Form(""),
+    LineItemName: Optional[List[str]] = Form([]),
+    LineItemQuantity: Optional[List[int]] = Form([])
 ):
     global SalesOrderCounter
-    
     VerificationResponse = SalesOrderVerification(CustomerName, LineItemName, LineItemQuantity)
     
     if isinstance(VerificationResponse, bool):
@@ -51,7 +50,7 @@ async def submit(
         '''
     
     else:
-        raise HTTPException(status_code=400, detail = VerificationResponse)
+        raise HTTPException(status_code=400, detail = VerificationResponse + " Please try again.")
 
 @app.get("/orders", response_class=JSONResponse)
 async def getSalesOrders():

@@ -9,7 +9,7 @@
         <form id = "SalesOrderForm" method="POST">
             <div>
                 <label for = "CustomerName">Customer Name: </label>
-                <input type="text" id = "CustomerName" name = "CustomerName"><br>
+                <input type="text" id = "CustomerName" name = "CustomerName" required><br>
             </div>
             <label for ="LineItemsOrder">Line Items:</label><br>
             <div id = "LineItemsList">
@@ -18,9 +18,9 @@
                     <input type = "number" id = "LineItemQuantity_0" name = "LineItemQuantity" placeholder = "Quantity">
                 </div>
             </div>
-            <div>
-                <button type="button" id = "addLineItemAction">Add Line Item</button>
-                <button type="submit">Submit sales order</button>
+            <div> 
+            <button type="button" id = "addLineItemAction">Add Line Item</button>
+            <button type="submit">Submit sales order</button>
         </form>
 
         <div id = "ConfirmationBoard"></div>
@@ -58,12 +58,12 @@
                     throw new Error("Failed to fetch orders.");
                 }
             } catch (error) {
-                document.getElementById("OrdersDBContent").innerText = "Could not fetch orders.";
+                document.getElementById("OrdersDB").innerText = "Could not fetch orders.";
             }                    
         };
 
 
-        document.addEventListener('DOMContentLoaded', () => {{
+        document.addEventListener('DOMContentLoaded', () => {
             const SalesOrderForm = document.getElementById("SalesOrderForm");
             const LineItemsList = document.getElementById("LineItemsList");
             const addLineItemAction = document.getElementById("addLineItemAction");
@@ -80,44 +80,45 @@
                     const newLineItem = document.createElement('div');
                     newLineItem.innerHTML = `
                         <div>
-                            <input type = "text" id = "LineItemName_${{LineItemsCounter}}" name = "LineItemName" placeholder = "Product Name">
-                            <input type = "number" id = "LineItemQuantity_${{LineItemsCounter}}" name = "LineItemQuantity" placeholder = "Quantity">
+                            <input type = "text" id = "LineItemName_${LineItemsCounter}" name = "LineItemName" placeholder = "Product Name">
+                            <input type = "number" id = "LineItemQuantity_${LineItemsCounter}" name = "LineItemQuantity" placeholder = "Quantity">
                             <button type="button" class = "deleteLineItem">X</button>
                         </div>
                     `;
-                    newLineItem.querySelector('.deleteLineItem').addEventListener('click', () => {{
+                    newLineItem.querySelector('.deleteLineItem').addEventListener('click', () => {
                         newLineItem.remove();
-                    }});
+                    });
                     LineItemsList.appendChild(newLineItem);
                 };
                 
                 addLineItemAction.addEventListener('click', addLineItem);
 
-                SalesOrderForm.addEventListener('submit', async(event) => {{
+                SalesOrderForm.addEventListener('submit', async(event) => {
                 
-                event.preventDefault(); 
+                    event.preventDefault(); 
 
-                const formData = new FormData(SalesOrderForm)
+                    const formData = new FormData(SalesOrderForm)
 
-                try {{
-                    const response = await fetch("/order", {
-                        method: 'POST',
-                        body: formData
-                    });
-                    if (response.ok) {{
-                        const result = await response.text();
-                        ConfirmationBoard.innerHTML = result;
-                        updateOrdersDB();
-                    }} else {{
-                        const errorText = await response.text().then(text => JSON.parse(text));
-                        ConfirmationBoard.innerHTML = `<div>Error: ${errorText.detail}</div>`;
-                    }}
-                }} catch (error) {{
-                    console.error('Error in submitting sales order: ', error);
-                }};
+                    try {
+                        const response = await fetch("/order", {
+                            method: 'POST',
+                            body: formData
+                        });
+                        if (response.ok) {
+                            const result = await response.text();
+                            ConfirmationBoard.innerHTML = result;
+                            updateOrdersDB();
+                        } else {
+                            const errorText = await response.text().then(text => JSON.parse(text));
+                            ConfirmationBoard.innerHTML = `<div>Error: ${errorText.detail}</div>`;
+                        }
+                    } catch (error) {
+                        console.error('Error in submitting sales order: ', error);
+                    };
+                    SalesOrderForm.reset();
 
-            }});
-        }});
+                });
+            });
     </script>
 </body>
 </html>
