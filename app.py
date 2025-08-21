@@ -1,5 +1,5 @@
 from fastapi import FastAPI, HTTPException, Form
-from fastapi.responses import HTMLResponse, FileResponse
+from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from typing import List
 
@@ -46,12 +46,18 @@ async def submit(
         <div>Order received successfully!</div><br>
         <div>Order ID: {SalesOrderCounter}</div>
         <div>Customer Name: {CustomerName}</div>
-        <>
         <div>Line Item Names: {LineItemName}</div>
         <div>Line Item Quantities: {LineItemQuantity}</div> 
         '''
     
     else:
         raise HTTPException(status_code=400, detail = VerificationResponse)
+
+@app.get("/orders", response_class=JSONResponse)
+async def getSalesOrders():
+    return JSONResponse(content={
+        "counter": SalesOrderCounter,
+        "orders": OrdersDB
+    })
     
 
