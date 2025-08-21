@@ -56,6 +56,7 @@
                     document.getElementById("SalesOrderCounter").innerText = result.counter;
                     let ordersText = "";
 
+                    // Loop through each order and format the display text
                     for (const [orderId, order] of Object.entries(result.orders)) {
                         ordersText += `Order ID: ${orderId}\nCustomer: ${order.CustomerName}\nLine Items [product name, quantity]:\n`;
                         for (let i = 0; i < order.LineItemName.length; i++) {
@@ -65,9 +66,11 @@
                     }
 
                     document.getElementById("OrdersDB").innerText = ordersText || "No orders yet.";
+                    // If no orders exist, display a message
                 } else {
                     throw new Error("Failed to fetch orders.");
                 }
+            // Handle any errors that occur during the fetch operation
             } catch (error) {
                 document.getElementById("OrdersDB").innerText = "Could not fetch orders.";
             }                    
@@ -136,7 +139,6 @@
                 };
                 // Reset the Sales Order Form
                 SalesOrderForm.reset();
-
             });
         });
     </script>

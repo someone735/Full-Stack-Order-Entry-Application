@@ -21,6 +21,7 @@ def cleanItemQuantities(LineItemQuantity: List[str]):
             converted_List.append(int(i))
         else:
             converted_List.append(None)
+    # Return the converted list
     return converted_List
 
 # Function to verify sales order details
@@ -45,6 +46,7 @@ def SalesOrderVerification(CustomerName: str, LineItemName: List[str], LineItemQ
             return f"The item {LineItemName[index]} cannot be empty."
         if quantity <= 0:
             return f"The item {LineItemName[index]} quantity must be greater than zero."
+    # If all checks pass, return True
     return True
 
 # Define the root endpoint to serve the index.html file
@@ -60,6 +62,7 @@ async def submit(
     LineItemQuantity: List[str] = Form([]) # Workaround for empty quantities in LineItemQuantity
 ):
     LineItemQuantity = cleanItemQuantities(LineItemQuantity)  # Clean up LineItemQuantity
+    # Accesses global variable to keep track of the sales order counter
     global SalesOrderCounter
     # Verify the sales order details
     VerificationResponse = SalesOrderVerification(CustomerName, LineItemName, LineItemQuantity)
@@ -67,11 +70,13 @@ async def submit(
     # Successful verification
     if isinstance(VerificationResponse, bool):
         SalesOrderCounter += 1
+        # Store the order in the in-memory database
         OrdersDB[SalesOrderCounter] = {
             "CustomerName": CustomerName,
             "LineItemName": LineItemName,
             "LineItemQuantity": LineItemQuantity
         }
+        # Return a success message with order details
         return f''' 
         <div>Order received successfully!</div><br>
         <div>Order ID: {SalesOrderCounter}</div>
@@ -79,8 +84,8 @@ async def submit(
         <div>Line Item Names: {LineItemName}</div>
         <div>Line Item Quantities: {LineItemQuantity}</div> 
         '''
-    
     else:
+        # If verification fails, raise an HTTP exception with the error message
         raise HTTPException(status_code=400, detail = VerificationResponse + " Please try again.")
 
 # Endpoint to retrieve all sales orders
