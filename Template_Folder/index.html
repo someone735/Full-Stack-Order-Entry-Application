@@ -60,7 +60,7 @@
                     for (const [orderId, order] of Object.entries(result.orders)) {
                         ordersText += `Order ID: ${orderId}\nCustomer: ${order.CustomerName}\nLine Items [Product name, Quantity]:\n`;
                         for (let i = 0; i < order.LineItemName.length; i++) {
-                            ordersText += `  ${order.LineItemName[i]}: ${order.LineItemQuantity[i]}\n`;
+                            ordersText += `  ${order.LineItemName[i]} : ${order.LineItemQuantity[i]}\n`;
                         }
                         ordersText += "\n";
                     }
