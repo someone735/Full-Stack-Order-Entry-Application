@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Form
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from typing import List
+from typing import List, Optional
 
 
 app = FastAPI() # Initialize FastAPI application 
@@ -12,16 +12,37 @@ app.mount("/static", StaticFiles(directory="Template_Folder", html = True), name
 OrdersDB = {}
 SalesOrderCounter = 0
 
+# Workaround to handle empty quantities in LineItemQuantity
+def cleanItemQuantities(LineItemQuantity: List[str]):
+    converted_List = []
+    # Convert string quantities to integers, handling empty strings
+    for i in LineItemQuantity:
+        if i.isdigit():
+            converted_List.append(int(i))
+        else:
+            converted_List.append(None)
+    return converted_List
+
 # Function to verify sales order details
 def SalesOrderVerification(CustomerName: str, LineItemName: List[str], LineItemQuantity: List[int]):
-    # Check if customer name, line item names, and quantities are provided
-    if not CustomerName or not LineItemName or not LineItemQuantity:
-        return "Customer name, line item names, and quantities cannot be empty."
+    # Check if customer name is provided
+    if not CustomerName:
+        return "Customer name cannot be empty."
+    if CustomerName.isdigit():
+        return "Customer name cannot be a number."
+    # if all line item names
+    for (index, name) in enumerate(LineItemName):
+        if not name:
+            return f"Line item {index+1}'s name cannot be empty."
+        if name.isdigit():
+            return f"Line item {index+1}'s name cannot be a number."
     # Check if line item names and quantities match in length
     if len(LineItemName) != len(LineItemQuantity):
         return "Line item names and quantities must match in length."
     # check if item quantities are greater than zero
     for index, quantity in enumerate(LineItemQuantity):
+        if not quantity:
+            return f"The item {LineItemName[index]} cannot be empty."
         if quantity <= 0:
             return f"The item {LineItemName[index]} quantity must be greater than zero."
     return True
@@ -34,10 +55,11 @@ async def serve_index():
 # Endpoint to handle sales order submission
 @app.post("/order", response_class = HTMLResponse)
 async def submit(
-    CustomerName: str = Form(...),
-    LineItemName: List[str] = Form(...),
-    LineItemQuantity: List[int] = Form(...)
+    CustomerName: str = Form(""),
+    LineItemName: List[str] = Form([]),
+    LineItemQuantity: List[str] = Form([]) # Workaround for empty quantities in LineItemQuantity
 ):
+    LineItemQuantity = cleanItemQuantities(LineItemQuantity)  # Clean up LineItemQuantity
     global SalesOrderCounter
     # Verify the sales order details
     VerificationResponse = SalesOrderVerification(CustomerName, LineItemName, LineItemQuantity)
