@@ -35,10 +35,12 @@ def SalesOrderVerification(CustomerName: str, LineItemName: List[str], LineItemQ
     # Check if line item names and quantities match in length
     if len(LineItemName) != len(LineItemQuantity):
         return "Line item names and quantities must match in length."
-    # Check if line item names are provided correctly and not empty
+    # Check if line item names are provided and not empty
     for (index, name) in enumerate(LineItemName):
         if not name:
             return f"Line item {index+1}'s name cannot be empty."
+        if not name.startswith("id:") and any(char.isdigit() for char in name):
+            return f"Line item {index+1}'s name must be use 'id:' when using an ID number."
         if name.isdigit():
             return f"Line item {index+1}'s name cannot be a number."
     # check if item quantities are greater than zero and not empty

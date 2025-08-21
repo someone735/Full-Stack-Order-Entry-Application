@@ -58,7 +58,7 @@
 
                     // Loop through each order and format the display text
                     for (const [orderId, order] of Object.entries(result.orders)) {
-                        ordersText += `Order ID: ${orderId}\nCustomer: ${order.CustomerName}\nLine Items [product name, quantity]:\n`;
+                        ordersText += `Order ID: ${orderId}\nCustomer: ${order.CustomerName}\nLine Items [Product name, Quantity]:\n`;
                         for (let i = 0; i < order.LineItemName.length; i++) {
                             ordersText += `  ${order.LineItemName[i]}: ${order.LineItemQuantity[i]}\n`;
                         }
