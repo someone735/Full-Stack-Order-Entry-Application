@@ -18,9 +18,9 @@
             <div id = "LineItemsList">
                 <div>
                     <!-- Line item name input -->
-                    <input type = "text" id = "LineItemName_0" name = "LineItemName" placeholder = "Product Name">
+                    <input type = "text" id = "LineItemName_0" name = "product_name" placeholder = "Product Name">
                     <!-- Line item quantity input -->
-                    <input type = "number" id = "LineItemQuantity_0" name = "LineItemQuantity" placeholder = "Quantity">
+                    <input type = "number" id = "LineItemQuantity_0" name = "quantity" placeholder = "Quantity">
                 </div>
             </div> 
             <!-- add line item button, if more than one item is required -->
@@ -59,8 +59,8 @@
                     // Loop through each order and format the display text
                     for (const [orderId, order] of Object.entries(result.orders)) {
                         ordersText += `Order ID: ${orderId}\nCustomer: ${order.CustomerName}\nLine Items [Product name, Quantity]:\n`;
-                        for (let i = 0; i < order.LineItemName.length; i++) {
-                            ordersText += `  ${order.LineItemName[i]} : ${order.LineItemQuantity[i]}\n`;
+                        for (let i = 0; i < order.product_name.length; i++) {
+                            ordersText += `  ${order.product_name[i]} : ${order.quantity[i]}\n`;
                         }
                         ordersText += "\n";
                     }
@@ -95,8 +95,8 @@
                     // Setting properties of the new line item
                     newLineItem.innerHTML = `
                         <div>
-                            <input type = "text" id = "LineItemName_${LineItemsCounter}" name = "LineItemName" placeholder = "Product Name">
-                            <input type = "number" id = "LineItemQuantity_${LineItemsCounter}" name = "LineItemQuantity" placeholder = "Quantity">
+                            <input type = "text" id = "LineItemName_${LineItemsCounter}" name = "product_name" placeholder = "Product Name">
+                            <input type = "number" id = "LineItemQuantity_${LineItemsCounter}" name = "quantity" placeholder = "Quantity">
                             <button type="button" class = "deleteLineItem">X</button>
                         </div>
                     `;
@@ -129,6 +129,8 @@
                         const result = await response.text();
                         ConfirmationBoard.innerHTML = result;
                         updateOrdersDB();
+                        // Reset the Sales Order Form
+                        SalesOrderForm.reset();
                     } else {
                         const errorText = await response.text().then(text => JSON.parse(text));
                         ConfirmationBoard.innerHTML = `<div>Error: ${errorText.detail}</div>`;
@@ -137,8 +139,6 @@
                     // error handling in case of network issues or server errors
                     console.error('Error in submitting sales order: ', error);
                 };
-                // Reset the Sales Order Form
-                SalesOrderForm.reset();
             });
         });
     </script>

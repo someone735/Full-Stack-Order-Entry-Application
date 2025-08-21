@@ -12,11 +12,11 @@ app.mount("/static", StaticFiles(directory="Template_Folder", html = True), name
 OrdersDB = {}
 SalesOrderCounter = 0
 
-# Workaround to handle empty quantities in LineItemQuantity
-def cleanItemQuantities(LineItemQuantity: List[str]):
+# Workaround to handle empty quantities in quantity
+def cleanItemQuantities(quantity: List[str]):
     converted_List = []
     # Convert string quantities to integers, handling empty strings
-    for i in LineItemQuantity:
+    for i in quantity:
         if i.isdigit():
             converted_List.append(int(i))
         else:
@@ -25,7 +25,7 @@ def cleanItemQuantities(LineItemQuantity: List[str]):
     return converted_List
 
 # Function to verify sales order details
-def SalesOrderVerification(CustomerName: str, LineItemName: List[str], LineItemQuantity: List[int]):
+def SalesOrderVerification(CustomerName: str, product_name: List[str], quantity: List[int]):
     # Check if customer name is provided
     if not CustomerName:
         return "Customer name cannot be empty."
@@ -33,10 +33,10 @@ def SalesOrderVerification(CustomerName: str, LineItemName: List[str], LineItemQ
     if any(char.isdigit() for char in CustomerName):
         return "Customer name cannot be or have a number."
     # Check if line item names and quantities match in length
-    if len(LineItemName) != len(LineItemQuantity):
+    if len(product_name) != len(quantity):
         return "Line item names and quantities must match in length."
     # Check if line item names are provided and not empty
-    for (index, name) in enumerate(LineItemName):
+    for (index, name) in enumerate(product_name):
         if not name:
             return f"Line item {index+1}'s name cannot be empty."
         if not name.startswith("id:") and any(char.isdigit() for char in name):
@@ -44,11 +44,11 @@ def SalesOrderVerification(CustomerName: str, LineItemName: List[str], LineItemQ
         if name.isdigit():
             return f"Line item {index+1}'s name cannot be a number."
     # check if item quantities are greater than zero and not empty
-    for index, quantity in enumerate(LineItemQuantity):
+    for index, quantity in enumerate(quantity):
         if not quantity:
-            return f"The item {LineItemName[index]} cannot be empty."
+            return f"The item {product_name[index]} cannot be empty."
         if quantity <= 0:
-            return f"The item {LineItemName[index]} quantity must be greater than zero."
+            return f"The item {product_name[index]} quantity must be greater than zero."
     # If all checks pass, return True
     return True
 
@@ -61,14 +61,14 @@ async def serve_index():
 @app.post("/order", response_class = HTMLResponse)
 async def submit(
     CustomerName: str = Form(""),
-    LineItemName: List[str] = Form([]),
-    LineItemQuantity: List[str] = Form([]) # Workaround for empty quantities in LineItemQuantity
+    product_name: List[str] = Form([]),
+    quantity: List[str] = Form([]) # Workaround for empty quantities in quantity
 ):
-    LineItemQuantity = cleanItemQuantities(LineItemQuantity)  # Clean up LineItemQuantity
+    quantity = cleanItemQuantities(quantity)  # Clean up quantity
     # Accesses global variable to keep track of the sales order counter
     global SalesOrderCounter
     # Verify the sales order details
-    VerificationResponse = SalesOrderVerification(CustomerName, LineItemName, LineItemQuantity)
+    VerificationResponse = SalesOrderVerification(CustomerName, product_name, quantity)
     
     # Successful verification
     if isinstance(VerificationResponse, bool):
@@ -76,16 +76,16 @@ async def submit(
         # Store the order in the in-memory database
         OrdersDB[SalesOrderCounter] = {
             "CustomerName": CustomerName,
-            "LineItemName": LineItemName,
-            "LineItemQuantity": LineItemQuantity
+            "product_name": product_name,
+            "quantity": quantity
         }
         # Return a success message with order details
         return f''' 
         <div>Order received successfully!</div><br>
         <div>Order ID: {SalesOrderCounter}</div>
         <div>Customer Name: {CustomerName}</div>
-        <div>Line Item Names: {LineItemName}</div>
-        <div>Line Item Quantities: {LineItemQuantity}</div> 
+        <div>Line Item Names: {product_name}</div>
+        <div>Line Item Quantities: {quantity}</div> 
         '''
     else:
         # If verification fails, raise an HTTP exception with the error message
