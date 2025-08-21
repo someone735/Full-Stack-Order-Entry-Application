@@ -29,18 +29,19 @@ def SalesOrderVerification(CustomerName: str, LineItemName: List[str], LineItemQ
     # Check if customer name is provided
     if not CustomerName:
         return "Customer name cannot be empty."
-    if CustomerName.isdigit():
-        return "Customer name cannot be a number."
-    # if all line item names
+    # Check if customer name is or contains a number
+    if any(char.isdigit() for char in CustomerName):
+        return "Customer name cannot be or have a number."
+    # Check if line item names and quantities match in length
+    if len(LineItemName) != len(LineItemQuantity):
+        return "Line item names and quantities must match in length."
+    # Check if line item names are provided correctly and not empty
     for (index, name) in enumerate(LineItemName):
         if not name:
             return f"Line item {index+1}'s name cannot be empty."
         if name.isdigit():
             return f"Line item {index+1}'s name cannot be a number."
-    # Check if line item names and quantities match in length
-    if len(LineItemName) != len(LineItemQuantity):
-        return "Line item names and quantities must match in length."
-    # check if item quantities are greater than zero
+    # check if item quantities are greater than zero and not empty
     for index, quantity in enumerate(LineItemQuantity):
         if not quantity:
             return f"The item {LineItemName[index]} cannot be empty."
