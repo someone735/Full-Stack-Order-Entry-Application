@@ -6,29 +6,36 @@
 <body>
     <div>
         <h1>Full-Stack Order Entry Application</h1>
+        <!-- Form of the Sales Order -->
         <form id = "SalesOrderForm" method="POST">
             <div>
                 <label for = "CustomerName">Customer Name: </label>
+                <!-- Customer Name input -->
                 <input type="text" id = "CustomerName" name = "CustomerName" required><br>
             </div>
             <label for ="LineItemsOrder">Line Items:</label><br>
+            <!-- Line Items input -->
             <div id = "LineItemsList">
                 <div>
+                    <!-- Line item name input -->
                     <input type = "text" id = "LineItemName_0" name = "LineItemName" placeholder = "Product Name">
+                    <!-- Line item quantity input -->
                     <input type = "number" id = "LineItemQuantity_0" name = "LineItemQuantity" placeholder = "Quantity">
                 </div>
-            </div>
-            <div> 
+            </div> 
+            <!-- add line item button, if more than one item is required -->
             <button type="button" id = "addLineItemAction">Add Line Item</button>
+            <!-- Submit Sales Order -->
             <button type="submit">Submit sales order</button>
         </form>
-
+        <!-- Displays http success and error messages -->
         <div id = "ConfirmationBoard"></div>
+        <!-- Displays current Sales Order Database -->
         <div id = DatabaseBoard>
             <h2>Database</h2>
             <div>
                 <label for = "SalesOrderCounter">Sales Order Counter</label>
-                <div id = "SalesOrderCounter">0</div><br>
+                <div id = "SalesOrderCounter"></div><br>
             </div>
             <div>
                 <label for = "OrdersDB">Orders Database</label>
@@ -37,16 +44,20 @@
         </div>
     </div>
     <script>
+        // Function to update the Orders Database display board 
         const updateOrdersDB = async () => {
             try {
+                // Fetch the sale orders from backend
                 const response = await fetch("/orders", {method: 'GET'});
+                // validation of the response
                 if (response.ok) {
                     const result = await response.json();
+                    // Update the Sales Order Counter and Orders Database display
                     document.getElementById("SalesOrderCounter").innerText = result.counter;
                     let ordersText = "";
 
                     for (const [orderId, order] of Object.entries(result.orders)) {
-                        ordersText += `Order ID: ${orderId}\nCustomer: ${order.CustomerName}\nLine Items:\n`;
+                        ordersText += `Order ID: ${orderId}\nCustomer: ${order.CustomerName}\nLine Items [product name, quantity]:\n`;
                         for (let i = 0; i < order.LineItemName.length; i++) {
                             ordersText += `  ${order.LineItemName[i]}: ${order.LineItemQuantity[i]}\n`;
                         }
@@ -62,22 +73,23 @@
             }                    
         };
 
-
+        // occurs when the DOM is fully loaded, setting up event listeners
         document.addEventListener('DOMContentLoaded', () => {
-            const SalesOrderForm = document.getElementById("SalesOrderForm");
-            const LineItemsList = document.getElementById("LineItemsList");
-            const addLineItemAction = document.getElementById("addLineItemAction");
-            const ConfirmationBoard = document.getElementById("ConfirmationBoard");
-            const SalesOrderCounter = document.getElementById("SalesOrderCounter");
-            const OrdersDBContent = document.getElementById("OrdersDBContent");
+            const SalesOrderForm = document.getElementById("SalesOrderForm"); // Sales Order Form
+            const LineItemsList = document.getElementById("LineItemsList"); // List of Line Items
+            const addLineItemAction = document.getElementById("addLineItemAction"); // Add Line Item button
+            const ConfirmationBoard = document.getElementById("ConfirmationBoard"); // Confirmation Board for success/error messages
             updateOrdersDB();
             
+            //local variable to keep track of the number of line items
             let LineItemsCounter = 0;
 
+            // Function to add a new line item input
             const addLineItem = () => {
                     const LineItemsList = document.getElementById("LineItemsList");
                     LineItemsCounter++
                     const newLineItem = document.createElement('div');
+                    // Setting properties of the new line item
                     newLineItem.innerHTML = `
                         <div>
                             <input type = "text" id = "LineItemName_${LineItemsCounter}" name = "LineItemName" placeholder = "Product Name">
@@ -85,40 +97,48 @@
                             <button type="button" class = "deleteLineItem">X</button>
                         </div>
                     `;
+                    // Add event listener to the delete button of the new line item
                     newLineItem.querySelector('.deleteLineItem').addEventListener('click', () => {
                         newLineItem.remove();
                     });
+                    // Append the new line item to the Line Items List
                     LineItemsList.appendChild(newLineItem);
                 };
+            // Add event listener to the Add Line Item button
+            addLineItemAction.addEventListener('click', addLineItem);
+
+            // Add event listener to the Sales Order Form for submission
+            SalesOrderForm.addEventListener('submit', async(event) => {
+                // Prevent the default form submission behavior
+                event.preventDefault(); 
                 
-                addLineItemAction.addEventListener('click', addLineItem);
+                // Obtain form data
+                const formData = new FormData(SalesOrderForm)
 
-                SalesOrderForm.addEventListener('submit', async(event) => {
-                
-                    event.preventDefault(); 
+                try {
+                    // Send the form data to the backend for validation and processing
+                    const response = await fetch("/order", {
+                        method: 'POST',
+                        body: formData
+                    });
+                    // if success validation, update the Confirmation Board with the response
+                    if (response.ok) {
+                        const result = await response.text();
+                        ConfirmationBoard.innerHTML = result;
+                        updateOrdersDB();
+                    } else {
+                        const errorText = await response.text().then(text => JSON.parse(text));
+                        ConfirmationBoard.innerHTML = `<div>Error: ${errorText.detail}</div>`;
+                    }
+                } catch (error) {
+                    // error handling in case of network issues or server errors
+                    console.error('Error in submitting sales order: ', error);
+                };
+                // Reset the Sales Order Form
+                SalesOrderForm.reset();
 
-                    const formData = new FormData(SalesOrderForm)
-
-                    try {
-                        const response = await fetch("/order", {
-                            method: 'POST',
-                            body: formData
-                        });
-                        if (response.ok) {
-                            const result = await response.text();
-                            ConfirmationBoard.innerHTML = result;
-                            updateOrdersDB();
-                        } else {
-                            const errorText = await response.text().then(text => JSON.parse(text));
-                            ConfirmationBoard.innerHTML = `<div>Error: ${errorText.detail}</div>`;
-                        }
-                    } catch (error) {
-                        console.error('Error in submitting sales order: ', error);
-                    };
-                    SalesOrderForm.reset();
-
-                });
             });
+        });
     </script>
 </body>
 </html>

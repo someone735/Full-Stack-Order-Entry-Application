@@ -1,4 +1,4 @@
 fastapi
-redis
-types-redis
-uvicorn
+uvicorn[standard]
+python-multipart
+jinja2
