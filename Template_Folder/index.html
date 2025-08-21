@@ -24,7 +24,21 @@
         </form>
 
         <div id = "ConfirmationBoard"></div>
-
+        <div>
+            <table>
+                <thead id = "OrdersTableHead">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Customer Name</th>
+                        <th>Line Item Names</th>
+                        <th>Line Item Quantities</th>
+                    </tr>
+                </thead>
+                <tbody id = "OrdersTableBody">
+                    <!-- Orders will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {{
@@ -60,6 +74,13 @@
                         method: 'POST',
                         body: formData
                     });
+                    if (response.ok) {{
+                        const result = await response.text();
+                        ConfirmationBoard.innerHTML = result;
+                    }} else {{
+                        const errorText = await response.text().then(text => JSON.parse(text));
+                        ConfirmationBoard.innerHTML = `<div>Error: ${errorText.detail}</div>`;
+                    }}
                 }} catch (error) {{
                     console.error('Error in submitting sales order: ', error);
                 }}
